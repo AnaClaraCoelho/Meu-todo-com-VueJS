@@ -2,11 +2,13 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Tarefa 1"
+      "title": "Tarefa 1",
+      "project": "Estudos"
     },
     {
       "id": 2,
-      "title": "Tarefa 2"
+      "title": "Tarefa 2",
+      "project": "Estudos"
     }
   ]
 }
