@@ -4,77 +4,99 @@
       <div class="nav-wrapper"></div>
     </nav>
 
-    <img alt="Vue logo" src="../assets/logo.png" />
+    <div v-show="exibir.lista" style="padding: 20px">
+      <button class="btn" @click="mostrarCadastro">Adicionar</button>
+    </div>
+    <!-- lista -->
     <div v-show="exibir.lista">
-      <button class="btn" @click="mostrarCadastro" v-if="exibir.lista == true">
-        Adicionar
-      </button>
       <TarefaList
-        msg="Welcome to Your Vue.js PageHome"
-        :tasks="listadeTarefa"
+        :msg="'Lista de tarefas'"
+        :tasks="listaDeTarefa"
+        @editarClick="recebiEditar"
+        @excluirClick="recebiExcluir"
       />
     </div>
-
-    <!--FORM-->
+    <!-- FORM -->
     <div v-show="exibir.form">
-      <h1>Cadastrar Tarefa</h1>
-      <input
-        type="text"
-        name="title"
-        id="title"
-        placeholder="Entre com a tarefa"
-        v-model="form.title"
-      />
-      <input
-        type="text"
-        name="project"
-        v-model="form.project"
-        placeholder="Entre com um projeto"
-      />
-      <button @click="salvarTarefa">Salvar</button>
+      <TarefaForm
+        :id="form.id"
+        :titulo="form.titulo"
+        :title="form.title"
+        :project="form.project"
+        :btn="form.btn"
+        @salvarClick="recebiSalvar"
+        @alterarClick="recebiAlterar"
+      ></TarefaForm>
     </div>
   </div>
 </template>
-
 <script>
 import TasksApi from '../TasksApi.js'
 import TarefaList from '../components/TarefaList.vue'
-
+import TarefaForm from '../components/TarefaForm.vue'
 export default {
   components: {
     TarefaList,
+    TarefaForm,
   },
   data: () => {
     return {
-      listadeTarefa: [],
+      listaDeTarefa: [],
       exibir: {
         lista: true,
         form: false,
       },
       form: {
-        title: 'teste',
+        id: 0,
+        titulo: 'Cadastrar Tarefa',
+        title: '',
         project: '',
+        btn: 'Adicionar',
       },
     }
   },
   methods: {
     listarTarefas() {
       TasksApi.getTasks((data) => {
-        this.listadeTarefa = data
+        this.listaDeTarefa = data
       })
     },
     mostrarCadastro() {
-      ;(this.exibir.form = true), (this.exibir.lista = false)
+      this.form.btn = 'Adicionar'
+      this.exibir.form = true
+      this.exibir.lista = false
     },
-    salvarTarefa() {
-      ;(this.exibir.form = false), (this.exibir.lista = true)
-      const novaTarefa = {
-        title: this.form.title,
-        project: this.form.project,
-        date: new Date().toLocaleDateString('pt'),
-      }
+    recebiSalvar(novaTarefa) {
       TasksApi.createTask(novaTarefa, () => {
         this.listarTarefas()
+        this.exibir.form = false
+        this.exibir.lista = true
+      })
+    },
+    recebiAlterar(tarefa) {
+      TasksApi.updateTasks(tarefa, () => {
+        this.listarTarefas()
+        this.exibir.form = false
+        this.exibir.lista = true
+      })
+    },
+    recebiEditar(tarefaId) {
+      this.form.btn = 'Alterar'
+      TasksApi.getTask(tarefaId, (task) => {
+        this.form.id = task.id
+        this.form.title = task.title
+        this.form.project = task.project
+        this.exibir.form = true
+        this.exibir.lista = false
+      })
+    },
+    recebiExcluir(tarefaId) {
+      console.log('1', tarefaId)
+      TasksApi.excludeTask(tarefaId, () => {
+        //this.listaDeTarefa.slice(tarefaId - 1, 1)
+        this.listarTarefas()
+        this.exibir.form = false
+        this.exibir.lista = true
       })
     },
   },
@@ -83,5 +105,4 @@ export default {
   },
 }
 </script>
-
 <style></style>

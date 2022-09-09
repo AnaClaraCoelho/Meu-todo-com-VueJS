@@ -8,6 +8,10 @@
           {{ t.title }}
           <span class="task-badge right-align">{{ t.project }}</span>
         </h5>
+        <button class="btn btn-small" @click="editarClick(t.id)">Editar</button>
+        <button class="btn btn-small" @click="excluirClick(t.id)">
+          Excluir
+        </button>
       </li>
     </ul>
   </div>
@@ -19,7 +23,15 @@ export default {
     msg: String,
     tasks: Array,
   },
-};
+  methods: {
+    editarClick(tarefaId) {
+      this.$emit('editarClick', tarefaId)
+    },
+    excluirClick(tarefaId) {
+      this.$emit('excluirClick', tarefaId)
+    },
+  },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
